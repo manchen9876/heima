@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大赛评分系统 - 评委版</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      padding: 40px 20px;
+      min-height: 100vh;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .judge-register-page {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      padding: 50px 40px;
+      margin: 50px auto;
+      text-align: center;
+    }
+
+    .register-title {
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .register-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .register-form label {
+      font-size: 18px;
+      color: #34495e;
+      align-self: flex-start;
+    }
+
+    .register-form input {
+      width: 100%;
+      height: 50px;
+      padding: 0 15px;
+      font-size: 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .register-form input:focus {
+      border-color: #3498db;
+    }
+
+    .enter-score-btn {
+      width: 100%;
+      height: 50px;
+      background-color: #3498db;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .enter-score-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .enter-score-btn:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .register-tip {
+      font-size: 14px;
+      color: #e74c3c;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .upload-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      padding: 30px;
+      margin-bottom: 30px;
+      text-align: center;
+      display: none;
+    }
+
+    .upload-title {
+      font-size: 20px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #2ecc71;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .upload-tip {
+      font-size: 14px;
+      color: #7f8c8d;
+      line-height: 1.5;
+    }
+
+    .progress {
+      font-size: 16px;
+      color: #7f8c8d;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .score-layout {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .preview-column {
+      flex: 6;
+    }
+
+    .link-preview-container {
+      width: 100%;
+      aspect-ratio: 9/16;
+      max-height: 800px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      position: relative;
+      background: white;
+    }
+
+    #preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .preview-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7f8c8d;
+    }
+
+    .info-column {
+      flex: 4;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .work-title {
+      font-size: 24px;
+      color: #2c3e50;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .work-concept {
+      font-size: 16px;
+      color: #34495e;
+      line-height: 1.6;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .dimension-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dimension-item label {
+      flex: 1;
+      font-size: 16px;
+    }
+
+    .dimension-item input {
+      width: 100px;
+      height: 40px;
+      padding: 0 10px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+    }
+
+    .total-score {
+      padding: 15px;
+      background-color: #e8f4fd;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .total-score label {
+      flex: 1;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .total-score span {
+      font-size: 20px;
+      color: #3498db;
+      font-weight: bold;
+    }
+
+    .tip {
+      color: #e74c3c;
+      font-size: 14px;
+      display: none;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .prev-btn {
+      background-color: #95a5a6;
+      color: white;
+    }
+
+    .prev-btn:disabled {
+      background-color: #bdc3c7;
+    }
+
+    .next-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .back-result-btn {
+      background-color: #e67e22;
+      color: white;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .complete-page {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 50px 30px;
+      text-align: center;
+      display: none;
+    }
+
+    .complete-title {
+      font-size: 28px;
+      color: #27ae60;
+      margin-bottom: 20px;
+    }
+
+    .judge-name-tag {
+      font-size: 18px;
+      color: #3498db;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .incomplete-tip {
+      font-size: 18px;
+      color: #e74c3c;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .score-table-preview {
+      width: 100%;
+      overflow-x: auto;
+      margin: 30px 0;
+    }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .score-table th {
+      background: #3498db;
+      color: white;
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    .score-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .incomplete-row {
+      background-color: #ffebee;
+      color: #e74c3c;
+    }
+
+    .edit-btn {
+      padding: 6px 12px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .modify-btn {
+      padding: 6px 12px;
+      background: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .complete-btn-group {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .submit-btn {
+      background-color: #2ecc71;
+      color: white;
+      padding: 15px 40px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .submit-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <div class="judge-register-page" id="judgeRegisterPage">
+    <h2 class="register-title">评委信息登记</h2>
+    <div class="register-form">
+      <label for="judgeNameInput">请输入您的姓名：</label>
+      <input type="text" id="judgeNameInput" placeholder="例如：张三" maxlength="20">
+      <div class="register-tip" id="registerTip">请填写评委姓名后再进入评分！</div>
+      <button class="enter-score-btn" id="enterScoreBtn" disabled>进入评分系统</button>
+    </div>
+  </div>
+
+  <div class="upload-section" id="upload-section">
+    <h3 class="upload-title">上传参赛者信息表格</h3>
+    <label for="file-input" class="upload-btn">📤 选择Excel文件</label>
+    <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+    <div class="upload-tip">列名要求：作品ID、作品名、作品理念、作品链接</div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="score-layout" id="score-layout">
+    <div class="preview-column">
+      <div class="link-preview-container">
+        <div class="preview-loading">正在加载作品内容...</div>
+        <iframe id="preview-iframe"></iframe>
+      </div>
+    </div>
+    <div class="info-column">
+      <h2 class="work-title">
+        <span id="work-name"></span>
+        <span class="work-id" id="work-id"></span>
+      </h2>
+      <div class="work-concept" id="work-concept"></div>
+      <a id="open-origin-link" target="_blank">🔗 点击打开原链接</a>
+
+      <div class="dimension-item">
+        <label>审美性（35%）：</label>
+        <input type="number" id="aesthetic-score" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="dimension-item">
+        <label>创意性（35%）：</label>
+        <input type="number" id="creative-score" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="dimension-item">
+        <label>洞察性（30%）：</label>
+        <input type="number" id="insight-score" min="0" max="100" placeholder="0-100">
+      </div>
+
+      <div class="total-score">
+        <label>自动计算总分：</label>
+        <span id="total-score-value">--</span>
+      </div>
+
+      <div class="tip" id="tip">请输入0-100之间的有效分数！</div>
+      <button class="btn back-result-btn" id="back-result-btn">🔙 返回结果页</button>
+    </div>
+  </div>
+
+  <div class="btn-group" id="btn-group">
+    <button class="btn prev-btn" id="prev-btn" disabled>上一个作品</button>
+    <button class="btn next-btn" id="next-btn">下一个作品</button>
+  </div>
+
+  <div class="complete-page" id="complete-page">
+    <h2 class="complete-title">🎉 所有作品评分完成！</h2>
+    <div class="judge-name-tag" id="judgeNameTag">当前评委：</div>
+    <div class="incomplete-tip" id="incomplete-tip">⚠️ 发现未完成评分的作品，请补充评分后再提交！</div>
+    <p>确认所有评分无误后，提交到飞书多维表格</p>
+
+    <div class="score-table-preview">
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>作品ID</th>
+            <th>作品名</th>
+            <th>审美性</th>
+            <th>创意性</th>
+            <th>洞察性</th>
+            <th>总分</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="score-table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="complete-btn-group">
+      <button class="submit-btn" id="submitAllBtn">提交评分结果到飞书多维表格</button>
+    </div>
+  </div>
+
+  <script>
+    let judgeName = "";
+    // ✅ 已替换为你最新的飞书表单链接
+    const FEISHU_FORM_URL = "https://ncnf2lqll52x.feishu.cn/share/base/form/shrcn2zx1RqlW6T1DWLGRKpsRIf";
+    let worksData = [];
+    let currentIndex = 0;
+    let scores = {};
+    let isEditing = false;
+    const weightConfig = {
+      aesthetic: 0.35,
+      creative: 0.35,
+      insight: 0.30
+    };
+    const $ = id => document.getElementById(id);
+    // 评委登记
+    const judgeNameInput = $("judgeNameInput");
+    const enterScoreBtn = $("enterScoreBtn");
+    const registerTip = $("registerTip");
+    judgeNameInput.addEventListener("input", function() {
+      enterScoreBtn.disabled = !this.value.trim();
+    });
+    enterScoreBtn.addEventListener("click", function() {
+      judgeName = judgeNameInput.value.trim();
+      if (!judgeName) {
+        registerTip.style.display = "block";
+        return;
+      }
+      $("judgeRegisterPage").style.display = "none";
+      $("upload-section").style.display = "block";
+    });
+    // 上传文件
+    $("file-input").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const wb = XLSX.read(ev.target.result, {
+          type: "array"
+        });
+        const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        worksData = data.map(it => ({
+          workId: it["作品ID"] || "",
+          name: it["作品名"] || "",
+          concept: it["作品理念"] || "",
+          url: it["作品链接"] || "#"
+        })).filter(i => i.workId);
+        $("upload-section").style.display = "none";
+        $("progress").style.display = "block";
+        $("score-layout").style.display = "flex";
+        $("btn-group").style.display = "flex";
+        renderWork();
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function renderWork() {
+      const w = worksData[currentIndex];
+      $("work-id").textContent = `ID：${w.workId}`;
+      $("work-name").textContent = w.name;
+      $("work-concept").textContent = `作品理念：${w.concept}`;
+      $("preview-iframe").src = w.url;
+      $("open-origin-link").href = w.url;
+      const s = scores[currentIndex] || {};
+      $("aesthetic-score").value = s.aesthetic || "";
+      $("creative-score").value = s.creative || "";
+      $("insight-score").value = s.insight || "";
+      calculateTotalScore();
+      updateProgress();
+    }
+
+    function calculateTotalScore() {
+      const a = +$("aesthetic-score").value || 0;
+      const c = +$("creative-score").value || 0;
+      const i = +$("insight-score").value || 0;
+      const total = a * 0.35 + c * 0.35 + i * 0.30;
+      $("total-score-value").textContent = total > 0 ? total.toFixed(1) : "--";
+    }
+
+    function updateProgress() {
+      $("progress").textContent = `第 ${currentIndex+1}/${worksData.length} 个作品`;
+    }
+
+    function saveCurrentScore() {
+      const a = +$("aesthetic-score").value;
+      const c = +$("creative-score").value;
+      const i = +$("insight-score").value;
+      const total = (a * 0.35 + c * 0.35 + i * 0.30).toFixed(1);
+      scores[currentIndex] = {
+        aesthetic: a,
+        creative: c,
+        insight: i,
+        total
+      };
+    }
+    $("next-btn").addEventListener("click", function() {
+      saveCurrentScore();
+      if (currentIndex === worksData.length - 1) {
+        showResultPage();
+        return;
+      }
+      currentIndex++;
+      renderWork();
+    });
+    $("prev-btn").addEventListener("click", function() {
+      currentIndex--;
+      renderWork();
+    });
+
+    function showResultPage() {
+      $("score-layout").style.display = "none";
+      $("btn-group").style.display = "none";
+      $("complete-page").style.display = "block";
+      $("judgeNameTag").textContent = `当前评委：${judgeName}`;
+      const body = $("score-table-body");
+      body.innerHTML = "";
+      worksData.forEach((w, idx) => {
+        const s = scores[idx] || {};
+        const miss = !s.aesthetic || !s.creative || !s.insight;
+        const tr = document.createElement("tr");
+        tr.className = miss ? "incomplete-row" : "";
+        tr.innerHTML = `
+<td>${w.workId}</td>
+<td>${w.name}</td>
+<td>${s.aesthetic||"-"}</td>
+<td>${s.creative||"-"}</td>
+<td>${s.insight||"-"}</td>
+<td>${s.total||"-"}</td>
+<td><button class="${miss?'edit-btn':'modify-btn'}" onclick="editScore(${idx})">${miss?"补评":"修改评分"}</button></td>`;
+        body.appendChild(tr);
+      });
+    }
+    window.editScore = function(idx) {
+      isEditing = true;
+      currentIndex = idx;
+      $("complete-page").style.display = "none";
+      $("score-layout").style.display = "flex";
+      $("btn-group").style.display = "flex";
+      renderWork();
+    };
+    $("back-result-btn").onclick = () => {
+      saveCurrentScore();
+      isEditing = false;
+      showResultPage();
+    };
+    // ✅ 提交到你的飞书表单
+    $("submitAllBtn").onclick = async function() {
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = "提交中...";
+      for (let i = 0; i < worksData.length; i++) {
+        const w = worksData[i];
+        const s = scores[i];
+        if (!s?.aesthetic) continue;
+        const fd = new FormData();
+        fd.append("评委姓名", judgeName);
+        fd.append("作品ID", w.workId);
+        fd.append("作品名", w.name);
+        fd.append("审美性", s.aesthetic);
+        fd.append("创意性", s.creative);
+        fd.append("洞察性", s.insight);
+        fd.append("总分", s.total);
+        await fetch(FEISHU_FORM_URL, {
+          method: "POST",
+          body: fd,
+          mode: "no-cors"
+        });
+      }
+      btn.textContent = "✅ 提交成功！";
+      alert(`提交成功！评委：${judgeName}`);
+    };
+    $("aesthetic-score").oninput = calculateTotalScore;
+    $("creative-score").oninput = calculateTotalScore;
+    $("insight-score").oninput = calculateTotalScore;
+  </script>
+</body>
+
+</html>53
